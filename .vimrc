@@ -77,8 +77,8 @@ endif
 inoremap jk <ESC> 
 
 " insert newline without entering insert mode
-nnoremap <C-J> o<Esc>k
-nnoremap <C-K> O<Esc>j
+nnoremap <C-J> o<Esc>
+nnoremap <C-K> O<Esc>
 
 " Search mappings: These will make it so that going to the next one in a
 " search will center on the line it's found in.
