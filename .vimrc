@@ -29,6 +29,9 @@ set showcmd
 " Turn off audible bell
 set visualbell
 
+" highlight the cursor line
+set cursorline
+
 " Needed for Syntax Highlighting and stuff
 filetype on
 filetype plugin on
