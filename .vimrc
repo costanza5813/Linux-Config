@@ -70,11 +70,15 @@ endif
 " inoremap <silent> <Down> <Esc>gja
 
 " Create Blank Newlines and stay in Normal mode
-nnoremap <silent> zj o<Esc>
-nnoremap <silent> zk O<Esc>
+"nnoremap <silent> zj o<Esc>
+"nnoremap <silent> zk O<Esc>
 
 " makes life easy
 inoremap jk <ESC> 
+
+" insert newline without entering insert mode
+nmap <S-Enter> O<Esc>j
+nmap <Enter> o<Esc>k
 
 " Search mappings: These will make it so that going to the next one in a
 " search will center on the line it's found in.
