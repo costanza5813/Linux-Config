@@ -1,0 +1,96 @@
+#!/bin/bash
+
+#    @license    http://www.gnu.org/licenses/agpl.txt
+#    @copyright  2014 Sourcefabric o.p.s.
+#    @link       http://www.sourcefabric.org
+#    @author     Micz Flor <micz.flor@sourcefabric.org>
+
+clear
+
+# folder to store in, no trailing slash
+SAVETO=~/streamplan
+
+# the default format of the recorded streams
+TARGET=mp3
+
+# set recorder "vlc" "streamripper" "mplayer" or comment out to prompt user for selection
+RECORDER=vlc
+
+case $1 in
+    0)
+        # WPMD Cerritos College - Norwalk, CA
+        STREAM="http://50.7.76.250:8784/;stream.nsv"
+        OPT="WPMD"
+        ;;
+    1)
+        # WLNG 92.1 - Sag Harbor, NY
+        STREAM="http://sc7.shoutcaststreaming.us:8100/;stream.nsv"
+        OPT="WLNG"
+        ;;
+    2)
+        # XRB Radio - Brownsburg, IN
+        STREAM="http://198.154.106.101:8156/;stream.mp3"
+        OPT="XRB"
+        ;;
+    *) 
+        # WPMD Cerritos College - Norwalk, CA
+        STREAM="http://50.7.76.250:8784/;stream.nsv"
+        OPT="WPMD"
+        ;;
+esac
+
+DATE=`date +"%Y-%m-%d"`
+HOUR=`date +"%H"`
+MINUTE=`date +"%M"`
+MINUTE=$(( 10#$MINUTE + 1 ))
+
+if [ $(( 10#$MINUTE )) -lt 10 ]
+then
+    MINUTE="0$MINUTE"
+elif [ $(( 10#$MINUTE )) -gt 59 ]
+then
+    MINUTE="00"
+fi
+
+TIME="$HOUR:$MINUTE"
+
+LENGTH=70
+
+TITLE="The.Beatles.Show"
+AUTHOR="Casey.Piotrowski"
+
+FILENAME=$DATE-$TIME-$OPT-$TITLE-$AUTHOR.$TARGET
+
+# create recording command depending on RECORDER
+case $RECORDER in
+  "vlc")
+    RECSTRING="cvlc --sout \"#transcode{acodec=$TARGET,ab=128,channels=2,samplerate=44100}:std{access=file,mux=$TARGET,dst=$SAVETO/${FILENAME// /_}}\" $STREAM"
+    ;;
+  "streamripper")
+    RECSTRING="streamripper $STREAM -d $SAVETO/ -a ${FILENAME// /_} -s -l $[(LENGTH*62)+180]"
+    ;;
+  "mplayer")
+    RECSTRING="mplayer -dumpstream -dumpfile \"$SAVETO/${FILENAME// /_}\" -playlist \"$STREAM\""
+    ;;
+esac
+
+# this will stop the recording and change the ID3 tags in the recorded file
+STOPSTRING="sleep $[LENGTH*60]; pkill $RECORDER; id3v2 --TIT2 \"$TITLE\" --TPE1 \"$AUTHOR\" --TPUB \"$OPT\" --TALB \"$STREAM\" --WOAF \"$STREAM\" --TRDA \"$DATE $TIME\" $SAVETO/${FILENAME// /_}"
+
+# create the save directory if it doesn't exist
+if [ ! -d $SAVETO ]; then
+   mkdir $SAVETO
+fi
+
+# write log file
+echo "*** Start $DATE $TIME ***" >> $SAVETO/log.txt
+
+# schedule the recording command with time format hh:mm YYYY-MM-DD
+echo $RECSTRING | at $TIME $DATE
+
+# the kill process for the same time which will sleep for the duration of the show
+echo $STOPSTRING | at $TIME $DATE
+
+# write log file
+echo $RECSTRING >> $SAVETO/log.txt
+echo $STOPSTRING >> $SAVETO/log.txt
