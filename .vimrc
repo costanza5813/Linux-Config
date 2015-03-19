@@ -1,5 +1,7 @@
 colorscheme wombat256mod
 
+let mapleader = ","
+
 set t_Co=256
 
 if &term =~ '256color'
@@ -108,3 +110,33 @@ set tabstop=4
 
 
 set backspace=indent,eol,start
+
+let s:activatedh120 = 0
+let s:activatedh80 = 0
+
+function! ToggleH120()
+    if s:activatedh120 == 0
+        let s:activatedh120 = 1
+        let s:activatedh80 = 0
+        match Search '\%>120v.\+'
+    else
+        let s:activatedh120 = 0
+        let s:activatedh80 = 0
+        match none
+    endif
+endfunction
+
+function! ToggleH80()
+    if s:activatedh80 == 0
+        let s:activatedh120 = 0
+        let s:activatedh80 = 1
+        match Search '\%>80v.\+'
+    else
+        let s:activatedh120 = 0
+        let s:activatedh80 = 0
+        match none
+    endif
+endfunction
+
+nnoremap <leader>a :call ToggleH120()<CR>
+nnoremap <leader>b :call ToggleH80()<CR>
